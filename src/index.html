@@ -1,0 +1,52 @@
+<script type="text/javascript">
+    RED.nodes.registerType('tf-model',{
+        category: 'Models',
+        color: '#F3B567',
+        defaults: {
+            modelURL: {value:'', required: true, type: 'string'},
+            name: {value:''}
+        },
+        inputs:1,
+        outputs:1,
+        icon: 'bridge.png',
+        label: function() {
+            return this.name||'TensorflowModel';
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="tf-model">
+    <div class="form-row">
+        <label for="node-input-modelURL"><i class="fa fa-tag"></i>Model URL</label>
+        <input type="text" id="node-input-modelURL" placeholder="modelURL">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="tf-model">
+    <p>Tensorflow.js Model</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>tensors
+            <span class="property-type">Object</span>
+        </dt>
+        <dd>use the tensors as inputs to run model inference</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <dt>prediction
+            <span class="property-type">Object</span>
+        </dt>
+        <dd>The prediction</dd>
+    </ol>
+
+    <h3>Details</h3>
+    <p><code>msg.payload</code> is used as tensor data and create tf.Tensor objects
+    then use these data to run model inference. The prediction results will be converted
+    to data array and pass the next node.
+</script>
