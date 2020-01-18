@@ -30,11 +30,15 @@
   "homepage": "https://github.com/yhwang/node-red-contrib-tf-model#readme",
   "devDependencies": {
     "@types/node": "^12.12.17",
+    "@types/node-fetch": "^2.5.4",
     "shelljs": "^0.8.3",
     "tslint": "^5.20.1",
     "typescript": "3.5.3"
   },
   "peerDependencies": {
     "@tensorflow/tfjs-node": "^1.4.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.0"
   }
 }
