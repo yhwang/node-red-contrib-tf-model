@@ -27,26 +27,31 @@
 </script>
 
 <script type="text/x-red" data-help-name="tf-model">
-    <p>Tensorflow.js Model</p>
+    <p>Use this to load Tensorflow.js Model and perform inference. The inference results
+        will be passed to next node.
+    </p>
 
     <h3>Inputs</h3>
     <dl class="message-properties">
-        <dt>tensors
-            <span class="property-type">Object</span>
+        <dt>payload
+            <span class="property-type">tf.NamedTensorMap</span>
         </dt>
-        <dd>use the tensors as inputs to run model inference</dd>
+        <dd>Directly use the payload as inputs to run model inference.
+            tf.Tensors in the named map would be disposed after inference.
+        </dd>
     </dl>
 
     <h3>Outputs</h3>
-    <ol class="node-ports">
-        <dt>prediction
-            <span class="property-type">Object</span>
+    <dl class="message-properties">
+        <dt>payload
+            <span class="property-type">tf.Tensor | tf.Tensor[]</span>
         </dt>
-        <dd>The prediction</dd>
-    </ol>
+        <dd>The ouput tensors of the model</dd>
+    </dl>
 
     <h3>Details</h3>
-    <p><code>msg.payload</code> is used as tensor data and create tf.Tensor objects
-    then use these data to run model inference. The prediction results will be converted
-    to data array and pass the next node.
+    <p><code>msg.payload</code> is used as tf.NamedTensorMap and run model inference.
+        Then the prediction results will be passed to next node. It could be
+        tf.Tensor or tf.Tensor[]
+    </p>
 </script>

@@ -1,0 +1,7 @@
+node_modules/
+.npmignore
+images/
+src/
+.vscode/
+scripts
+package-lock.json
