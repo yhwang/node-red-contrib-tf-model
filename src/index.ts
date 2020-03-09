@@ -149,16 +149,12 @@ function fetchNewModelFiles(url: string) {
     .then((res) => {
       // all model file will be stored as model.json for now
       // TODO: need to support saved model as well
-      const contentType = res.headers.get('content-type');
-      if (contentType.indexOf('application/json') !== -1) {
-        filename = 'model.json';
-      }
+      filename = 'model.json';
       gModelCache[url] = {
         hash,
         lastModified: res.headers.get('last-modified'),
         filename
       };
-      updateCacheEntries(MODEL_CACHE_ENTRIES);
       return res.buffer();
     })
     // store the model.json and retrieve shared file list
@@ -170,6 +166,7 @@ function fetchNewModelFiles(url: string) {
           if (err) {
             reject(err);
           } else {
+            updateCacheEntries(MODEL_CACHE_ENTRIES);
             resolve(require(modelFile));
           }
         });
