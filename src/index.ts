@@ -259,6 +259,7 @@ export = function tfModel(RED: NodeRed) {
                     text:'model is ready'
                   });
                   this.log(`model loaded`);
+                  this.log(`input(s) for the model: ${JSON.stringify(this.model.inputNodes)}`);
             });
         });
       }
