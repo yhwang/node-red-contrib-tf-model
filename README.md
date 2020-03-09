@@ -46,7 +46,9 @@ The `Model URL` should point to a Tensorflow.js model which is in web friendly
 format. Typically, it should be a model JSON file. After you specify the
 `Model URL` and deploy the flow, it will fetch the model files, including
 shard files, and store them in `${HOME}/.node-red/tf-model` directory.
-The new node will load the model and maintain the cache entry.
+The new node will load the model and maintain the cache entry. You can specify
+the `Ouptput Node` name when running model inference. By default, it uses
+that last node as the output node.
 
 ## Data Format
 

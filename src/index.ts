@@ -53,6 +53,7 @@ type NodeRedProperties = {
   type: string;
   name: string;
   modelURL: string;
+  outputNode: string;
   wires: NodeRedWires;
 };
 
@@ -222,6 +223,7 @@ export = function tfModel(RED: NodeRed) {
     send: (msg: NodeRedSendMessage) => void;
     status: (option: StatusOption) => void;
     log: (msg: string) => void;
+    error: (msg: string) => void;
 
     id: string;
     type: string;
@@ -229,6 +231,7 @@ export = function tfModel(RED: NodeRed) {
     wires: NodeRedWires;
     modelURL: string;
     model: tf.GraphModel;
+    outputNode: string;
 
     constructor(config: NodeRedProperties) {
       this.id = config.id;
@@ -236,6 +239,7 @@ export = function tfModel(RED: NodeRed) {
       this.name = config.name;
       this.wires = config.wires;
       this.modelURL = config.modelURL;
+      this.outputNode = config.outputNode || '';
 
       RED.nodes.createNode(this, config);
       this.on('input', (msg: NodeRedReceivedMessage) => {
@@ -267,13 +271,21 @@ export = function tfModel(RED: NodeRed) {
 
     // handle a single request
     handleRequest(inputs: tf.NamedTensorMap) {
-      this.model.executeAsync(inputs).then((result) => {
-        // Clean up the NamedTensorMap here
-        for(const one in inputs) {
-          inputs[one].dispose();
-        }
+      this.model.executeAsync(inputs, this.outputNode).then((result) => {
         this.send({payload: result});
+        this.cleanUp(inputs);
+      })
+      .catch((e: Error) => {
+        this.error(e.message);
+        this.cleanUp(inputs);
       });
+    }
+
+    cleanUp(tensors: tf.NamedTensorMap) {
+        // Clean up the NamedTensorMap here
+        for(const one in tensors) {
+          tensors[one].dispose();
+        }
     }
 
     handleClose(done: () => void) {
@@ -283,7 +295,6 @@ export = function tfModel(RED: NodeRed) {
       }
       done();
     }
-
   }
 
   RED.nodes.registerType('tf-model', TFModel);

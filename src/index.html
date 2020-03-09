@@ -4,6 +4,7 @@
         color: '#F3B567',
         defaults: {
             modelURL: {value:'', required: true, type: 'string'},
+            outputNode: {value:'', type: 'string'},
             name: {value:''}
         },
         inputs:1,
@@ -17,11 +18,15 @@
 
 <script type="text/x-red" data-template-name="tf-model">
     <div class="form-row">
-        <label for="node-input-modelURL"><i class="fa fa-tag"></i>Model URL</label>
-        <input type="text" id="node-input-modelURL" placeholder="modelURL">
+        <label for="node-input-modelURL"><i class="fa fa-tag"></i> Model URL</label>
+        <input type="text" id="node-input-modelURL" placeholder="modelURL" style="width:70%">
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+        <label for="node-input-outputNode"><i class="fa fa-tag"></i> Ouput Node</label>
+        <input type="text" id="node-input-outputNode" style="width:70%">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
 </script>
@@ -52,6 +57,8 @@
     <h3>Details</h3>
     <p><code>msg.payload</code> is used as tf.NamedTensorMap and run model inference.
         Then the prediction results will be passed to next node. It could be
-        tf.Tensor or tf.Tensor[]
+        tf.Tensor or tf.Tensor[]. You can specify the "Output Node" name of the model.
+        All the tensor values in the msg.payload coming from previous node will
+        be disposed.
     </p>
 </script>
