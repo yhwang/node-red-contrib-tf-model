@@ -1,5 +1,5 @@
 import { homedir } from 'os';
-import * as path from 'path';
+import { join, dirname } from 'path';
 import { mkdirSync, existsSync, writeFile, writeFileSync } from 'fs';
 import * as tf from '@tensorflow/tfjs-node';
 import fetch from 'node-fetch';
@@ -31,12 +31,12 @@ type CacheEntries = {
 };
 
 // Where we store all data for tf-model custom node
-const CACHE_DIR = path.join(homedir(), '.node-red', 'tf-model');
+const CACHE_DIR = join(homedir(), '.node-red', 'tf-model');
 // Make sure the CACHE_DIR exists
 mkdirSync(CACHE_DIR, {recursive: true});
 
 // A JSON file to store all the cached models
-const MODEL_CACHE_ENTRIES = path.join(CACHE_DIR, 'models.json');
+const MODEL_CACHE_ENTRIES = join(CACHE_DIR, 'models.json');
 // Load cached model entries
 const gModelCache: CacheEntries = existsSync(MODEL_CACHE_ENTRIES) ?
     require(MODEL_CACHE_ENTRIES) : {};
@@ -145,7 +145,7 @@ function fetchNewModelFiles(url: string) {
   let filename: string;
   let modelFile: string;
   const hash = hashCode(url);
-  const modelFolder = path.join(CACHE_DIR, hash);
+  const modelFolder = join(CACHE_DIR, hash);
   return fetch(url)
     .then((res) => {
       // all model file will be stored as model.json for now
@@ -162,7 +162,7 @@ function fetchNewModelFiles(url: string) {
     .then((body) => {
       return new Promise((resolve, reject) => {
         mkdirSync(modelFolder, { recursive: true });
-        modelFile = path.join(modelFolder, filename);
+        modelFile = join(modelFolder, filename);
         writeFile(modelFile, body, (err) => {
           if (err) {
             reject(err);
@@ -177,14 +177,14 @@ function fetchNewModelFiles(url: string) {
     .then((model: ModelJSON) => {
       if (model.weightsManifest !== undefined) {
         const parsedURL = parseURL(url);
-        const dirname = path.dirname(parsedURL.pathname);
+        const dir = dirname(parsedURL.pathname);
         const allFetch: Array<Promise<string>> = [];
         model.weightsManifest[0].paths.forEach((shardFile) => {
-          parsedURL.pathname = `${dirname}/${shardFile}`;
+          parsedURL.pathname = `${dir}/${shardFile}`;
           allFetch.push(
               fetchAndStore(
                   `${parsedURL.protocol}//${parsedURL.host}${parsedURL.pathname}`,
-                  path.join(modelFolder, shardFile)));
+                  join(modelFolder, shardFile)));
         });
         return Promise.all(allFetch);
       }
@@ -193,27 +193,42 @@ function fetchNewModelFiles(url: string) {
     .then(() => modelFile);
 }
 
-function downloadOrUpdateModelFiles(url: string): Promise<string> {
-  const cacheEntry = gModelCache[url];
+function downloadOrUpdateModelFiles(urlStr: string): Promise<string> {
 
+  // support local file://
+  let url: URL;
+  try {
+    url = new URL(urlStr);
+  } catch (e) {
+    return Promise.reject('Invalid URL');
+  }
+
+  if (url.protocol === 'file:') {
+    return Promise.resolve(url.pathname);
+  }
+
+  const cacheEntry = gModelCache[urlStr];
   if (cacheEntry !== undefined) {
-    return fetch(url, {
+    return fetch(urlStr, {
           headers: { 'If-Modified-Since': cacheEntry.lastModified },
           method: 'HEAD',
         })
         .then((res) => {
           if(res.status === 304) {
-            return path.join(CACHE_DIR, cacheEntry.hash, cacheEntry.filename);
+            return join(CACHE_DIR, cacheEntry.hash, cacheEntry.filename);
           } if (res.status === 200) {
             // fetch updated model files
-            return fetchNewModelFiles(url);
+            return fetchNewModelFiles(urlStr);
           } else {
             throw new Error(`can not retrieve model: ${res.statusText}`);
           }
+        })
+        .catch((e) => {
+          throw e;
         });
   } else {
     // let's fetch the model
-    return fetchNewModelFiles(url);
+    return fetchNewModelFiles(urlStr);
   }
 }
 // Module for a Node-Red custom node
