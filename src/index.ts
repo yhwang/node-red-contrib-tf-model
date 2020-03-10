@@ -204,9 +204,11 @@ function downloadOrUpdateModelFiles(url: string): Promise<string> {
         .then((res) => {
           if(res.status === 304) {
             return path.join(CACHE_DIR, cacheEntry.hash, cacheEntry.filename);
-          } else {
+          } if (res.status === 200) {
             // fetch updated model files
             return fetchNewModelFiles(url);
+          } else {
+            throw new Error(`can not retrieve model: ${res.statusText}`);
           }
         });
   } else {
@@ -251,26 +253,40 @@ export = function tfModel(RED: NodeRed) {
       });
 
       if (this.modelURL.trim().length > 0) {
-        downloadOrUpdateModelFiles(this.modelURL).then((modelPath) => {
+        downloadOrUpdateModelFiles(this.modelURL)
+        .then((modelPath) => {
             this.status({fill:'red' ,shape:'ring', text:'loading model...'});
             this.log(`loading model from: ${this.modelURL}`);
-            tf.loadGraphModel(tf.io.fileSystem(modelPath))
-                .then((model: tf.GraphModel) => {
-                  this.model = model;
-                  this.status({
-                    fill:'green',
-                    shape:'dot',
-                    text:'model is ready'
-                  });
-                  this.log(`model loaded`);
-                  this.log(`input(s) for the model: ${JSON.stringify(this.model.inputNodes)}`);
-            });
+            return tf.loadGraphModel(tf.io.fileSystem(modelPath));
+        })
+        .then((model: tf.GraphModel) => {
+          this.model = model;
+          this.status({
+            fill:'green',
+            shape:'dot',
+            text:'model is ready'
+          });
+          this.log(`model loaded`);
+          this.log(`input(s) for the model: ${JSON.stringify(this.model.inputNodes)}`);
+        })
+        .catch((e: Error) => {
+          this.error(e.message);
+          this.status({
+            fill:'red',
+            shape:'dot',
+            text:`failed to load the model: ${e.message}`
+          });
         });
       }
     }
 
     // handle a single request
     handleRequest(inputs: tf.NamedTensorMap) {
+      if (!this.model) {
+        this.error(`model is not ready`);
+        return;
+      }
+
       this.model.executeAsync(inputs, this.outputNode).then((result) => {
         this.send({payload: result});
         this.cleanUp(inputs);
