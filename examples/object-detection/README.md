@@ -67,7 +67,7 @@ return {payload: { image_tensor: image } };
 It is a `tf-function` node; you can use Tensorflow.js APIs with the `tf`
 namespace. Here, it uses `tf.node.decodeImage()` to decode the image as
 a 3D tensor and call `expandDims()` to prepend the batch dimension.
-Those code is surrended by `tf.tidy()` to clean up intermittent tensors.
+The code is surrended by `tf.tidy()` to clean up intermittent tensors.
 Then the tensor is assigned as `image_tensor` property in the named map
 object. This named map then can be used for the `COCO SSD lite` node.
 For details of Tensorflow.js API, please check the website
@@ -78,9 +78,9 @@ prediction results, including detected objects and bounding boxes. The
 results are not easy to digest without post processing. So we pass the
 results directly to `post-processing` node.
 
-Inside `post-processing` node, it caculates the bounding boxes and detected
+Inside `post-processing` node, it calculates the bounding boxes and detected
 objects by using the `IoU` and `Min Score` settings. The output would be a
-list of the following object:
+list of the following object:s
 ```
 {
     "bbox": [x, y, w, h],
