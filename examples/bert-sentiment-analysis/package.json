@@ -1,0 +1,20 @@
+{
+  "name": "bert-sentiment-example-flow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "start": "node-red -v -s settings.js flow.json"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^1.6.0",
+    "node-red": "^1.0.1",
+    "node-red-contrib-bert-tokenizer": "^1.0.3",
+    "node-red-contrib-tf-function": "^0.1.0",
+    "node-red-contrib-tf-model": "^0.1.4",
+    "node-red-dashboard": "^2.19.4",
+    "youtube-comments-stream": "^1.4.6"
+  }
+}
