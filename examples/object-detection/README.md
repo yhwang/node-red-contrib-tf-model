@@ -95,7 +95,8 @@ Before we annotate the image with detected objects, `bounding-box` node
 needs two inputs:
 - original image
 - detected objects with bounding box information
-We use `Change` and `Join` nodes here to merge these two data into another
+
+We use a `function` node here to merge these two data into another
 named map object:
 ```
 {
@@ -103,5 +104,8 @@ named map object:
     "objects": <list of detected object>
 }
 ```
-And pass the named map object to `bounding-box` node. Then it draws the
-detected objects onto the image.
+This function node executes a special logic to queue up the original image and
+wait for the inference results which also contains a `complete` flag. Image
+data and prediction results are paired up as a named map object and passed to
+the `bounding-box` node. Finally, the `bounding box` node draws the detected
+objects onto the image.
