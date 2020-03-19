@@ -104,3 +104,4 @@ We provide some example flows under the examples folder. They may help you to
 understand the usage of `tf-model` node and other Node-RED custom node we
 provide.
 - [Object Detection](examples/object-detection)
+- [BERT Sentiment Analysis](examples/bert-sentiment-analysis)

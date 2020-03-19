@@ -1,4 +1,4 @@
-## Object Detection Example Flow
+## BERT Sentiment Analysis Example Flow
 This example flow uses a BERT Sentiment model to classify comments sentiment of a Youtube video
 and charts the result.
 
