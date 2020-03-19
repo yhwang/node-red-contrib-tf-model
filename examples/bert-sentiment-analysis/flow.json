@@ -1,0 +1,532 @@
+[
+  {
+    "id": "3b8fa5ec.1fd73a",
+    "type": "tab",
+    "label": "Flow 1",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "48eb73de.4f19b4",
+    "type": "subflow",
+    "name": "Chart",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 160,
+        "y": 80,
+        "wires": [
+          {
+            "id": "b8009b27.8b5338"
+          }
+        ]
+      }
+    ],
+    "out": [],
+    "env": [],
+    "color": "#DDAA99"
+  },
+  {
+    "id": "a0b9e339.c8cf7",
+    "type": "subflow",
+    "name": "Sentiment Analysis",
+    "info": "",
+    "category": "",
+    "in": [
+      {
+        "x": 50,
+        "y": 30,
+        "wires": [
+          {
+            "id": "89605c7f.c4a7c"
+          }
+        ]
+      }
+    ],
+    "out": [
+      {
+        "x": 640,
+        "y": 180,
+        "wires": [
+          {
+            "id": "89605c7f.c4a7c",
+            "port": 0
+          }
+        ]
+      },
+      {
+        "x": 640,
+        "y": 260,
+        "wires": [
+          {
+            "id": "aceae84f.62de2",
+            "port": 0
+          }
+        ]
+      }
+    ],
+    "env": [
+      {
+        "name": "vocabUrl",
+        "type": "str",
+        "value": ""
+      },
+      {
+        "name": "modelUrl",
+        "type": "str",
+        "value": ""
+      }
+    ],
+    "color": "#DDAA99"
+  },
+  {
+    "id": "f7a71d53.50b8f",
+    "type": "ui_group",
+    "z": "",
+    "name": "Comments",
+    "tab": "ecb45bd0.ba2888",
+    "disp": true,
+    "width": "6",
+    "collapse": false
+  },
+  {
+    "id": "ecb45bd0.ba2888",
+    "type": "ui_tab",
+    "z": "",
+    "name": "Home",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "752a135f.c4951c",
+    "type": "ui_base",
+    "theme": {
+      "name": "theme-light",
+      "lightTheme": {
+        "default": "#0094CE",
+        "baseColor": "#0094CE",
+        "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+        "edited": false,
+        "reset": false
+      },
+      "darkTheme": {
+        "default": "#097479",
+        "baseColor": "#097479",
+        "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+        "edited": false
+      },
+      "customTheme": {
+        "name": "Untitled Theme 1",
+        "default": "#4B7930",
+        "baseColor": "#4B7930",
+        "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+        "reset": false
+      },
+      "themeState": {
+        "base-color": {
+          "default": "#0094CE",
+          "value": "#0094CE",
+          "edited": false
+        },
+        "page-titlebar-backgroundColor": {
+          "value": "#0094CE",
+          "edited": false
+        },
+        "page-backgroundColor": {
+          "value": "#fafafa",
+          "edited": false
+        },
+        "page-sidebar-backgroundColor": {
+          "value": "#ffffff",
+          "edited": false
+        },
+        "group-textColor": {
+          "value": "#1bbfff",
+          "edited": false
+        },
+        "group-borderColor": {
+          "value": "#ffffff",
+          "edited": false
+        },
+        "group-backgroundColor": {
+          "value": "#ffffff",
+          "edited": false
+        },
+        "widget-textColor": {
+          "value": "#111111",
+          "edited": false
+        },
+        "widget-backgroundColor": {
+          "value": "#0094ce",
+          "edited": false
+        },
+        "widget-borderColor": {
+          "value": "#ffffff",
+          "edited": false
+        },
+        "base-font": {
+          "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+        }
+      },
+      "angularTheme": {
+        "primary": "indigo",
+        "accents": "blue",
+        "warn": "red",
+        "background": "grey"
+      }
+    },
+    "site": {
+      "name": "Node-RED Dashboard",
+      "hideToolbar": "false",
+      "allowSwipe": "false",
+      "lockMenu": "false",
+      "allowTempTheme": "true",
+      "dateFormat": "DD/MM/YYYY",
+      "sizes": {
+        "sx": 48,
+        "sy": 48,
+        "gx": 6,
+        "gy": 6,
+        "cx": 6,
+        "cy": 6,
+        "px": 0,
+        "py": 0
+      }
+    }
+  },
+  {
+    "id": "b8009b27.8b5338",
+    "type": "function",
+    "z": "48eb73de.4f19b4",
+    "name": "Total",
+    "func": "var pos_count = context.get('pos_count')||0;\nvar neg_count = context.get('neg_count')||0;\nif (msg.payload==\"clear\") {\n    console.log(\"Reset count to 0.\")\n    pos_count = 0;\n    neg_count = 0;\n    context.set('pos_count',pos_count);\n    context.set('neg_count',neg_count);\n}\nif (msg.payload[\"positive\"] > 0.5) {\n    console.log(\"Positive\");\n    pos_count += 1;\n    // store the value back in context\n    context.set('pos_count',pos_count);\n    // put it in the outgoing msg object\n    msg.topic = \"Positive\";\n    msg.payload = pos_count;\n} \nif (msg.payload[\"negative\"] > 0.5){\n    console.log(\"Negative\");\n    neg_count += 1;\n    // store the value back in context\n    context.set('neg_count',neg_count);\n    // put it in the outgoing msg object\n    msg.topic = \"Negative\";\n    msg.payload = neg_count;\n}\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 290,
+    "y": 80,
+    "wires": [
+      [
+        "4d29652.f1e4b9c"
+      ]
+    ]
+  },
+  {
+    "id": "4d29652.f1e4b9c",
+    "type": "ui_chart",
+    "z": "48eb73de.4f19b4",
+    "name": "Chart",
+    "group": "f7a71d53.50b8f",
+    "order": 0,
+    "width": "6",
+    "height": "6",
+    "label": "",
+    "chartType": "bar",
+    "legend": "false",
+    "xformat": "mm:ss",
+    "interpolate": "linear",
+    "nodata": "Waiting for comments",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "",
+    "removeOlder": 1,
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "colors": [
+      "#1f77b4",
+      "#e83029",
+      "#ff7f0e",
+      "#2ca02c",
+      "#98df8a",
+      "#9d98d6",
+      "#ff9896",
+      "#9467bd",
+      "#c5b0d5"
+    ],
+    "useOldStyle": false,
+    "outputs": 1,
+    "x": 470,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "b55a6ff7.0a06e",
+    "type": "inject",
+    "z": "48eb73de.4f19b4",
+    "name": "Reset count",
+    "topic": "",
+    "payload": "clear",
+    "payloadType": "str",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 190,
+    "y": 200,
+    "wires": [
+      [
+        "b8009b27.8b5338"
+      ]
+    ]
+  },
+  {
+    "id": "e7174316.01a0b",
+    "type": "inject",
+    "z": "48eb73de.4f19b4",
+    "name": "Clear chart",
+    "topic": "",
+    "payload": "[]",
+    "payloadType": "json",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 380,
+    "y": 200,
+    "wires": [
+      [
+        "4d29652.f1e4b9c"
+      ]
+    ]
+  },
+  {
+    "id": "5a473c82.65a0a4",
+    "type": "subflow:48eb73de.4f19b4",
+    "z": "3b8fa5ec.1fd73a",
+    "x": 390,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "c3544337.d0992",
+    "type": "function",
+    "z": "3b8fa5ec.1fd73a",
+    "name": "Read Comments",
+    "func": "const VIDEO_ID = msg.payload.video_id||'M1wLtAXDgqg';\nconst MAX_COMMENTS = msg.payload.max_comments||10;\nconst commentsStream = global.get('commentsStream');\nconst limit = commentsStream.limit(MAX_COMMENTS);\nconst stream = commentsStream.get(VIDEO_ID).pipe(limit);\n\nstream.on('data', function (comment) {\n    node.send({payload: comment.text});\n});\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 450,
+    "y": 100,
+    "wires": [
+      [
+        "eb9d408b.e1e808"
+      ]
+    ]
+  },
+  {
+    "id": "7cbe0e72.02dcd8",
+    "type": "inject",
+    "z": "3b8fa5ec.1fd73a",
+    "name": "",
+    "topic": "",
+    "payload": "{\"video_id\":\"9bZkp7q19f0\",\"max_comments\":\"100\"}",
+    "payloadType": "json",
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 130,
+    "y": 100,
+    "wires": [
+      [
+        "c3544337.d0992"
+      ]
+    ]
+  },
+  {
+    "id": "2fe60b3a.bacb84",
+    "type": "change",
+    "z": "3b8fa5ec.1fd73a",
+    "name": "review",
+    "rules": [
+      {
+        "t": "set",
+        "p": "topic",
+        "pt": "msg",
+        "to": "review",
+        "tot": "str"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 390,
+    "y": 180,
+    "wires": [
+      [
+        "3c9026e5.2691aa"
+      ]
+    ]
+  },
+  {
+    "id": "f2965ef3.911ad8",
+    "type": "change",
+    "z": "3b8fa5ec.1fd73a",
+    "name": "score",
+    "rules": [
+      {
+        "t": "set",
+        "p": "topic",
+        "pt": "msg",
+        "to": "score",
+        "tot": "str"
+      },
+      {
+        "t": "set",
+        "p": "complete",
+        "pt": "msg",
+        "to": "true",
+        "tot": "bool"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 390,
+    "y": 240,
+    "wires": [
+      [
+        "3c9026e5.2691aa"
+      ]
+    ]
+  },
+  {
+    "id": "3c9026e5.2691aa",
+    "type": "function",
+    "z": "3b8fa5ec.1fd73a",
+    "name": "merge",
+    "func": "let queue = flow.get('queue');\nif (queue === undefined) {\n    queue = [];\n    flow.set('queue', queue);\n}\nif (msg.complete === undefined) {\n    queue.push(msg.payload);\n    node.done();\n} else {\n    const txt = queue.shift();\n    node.send( { payload: { txt: txt,\n                            positive: msg.payload.positive, \n                            negative: msg.payload.negative\n    }} );\n}",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 550,
+    "y": 220,
+    "wires": [
+      [
+        "d31e8ff7.ee2f2"
+      ]
+    ]
+  },
+  {
+    "id": "d31e8ff7.ee2f2",
+    "type": "debug",
+    "z": "3b8fa5ec.1fd73a",
+    "name": "",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 730,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "89605c7f.c4a7c",
+    "type": "function",
+    "z": "a0b9e339.c8cf7",
+    "name": "Sanitize",
+    "func": "function stripPunctuation(text){\n  text = text.replace(/[,-\\/#!$%\\^&\\*;:{}=\\-_`~()@\\+\\?><\\[\\]\\+]/g,\"\");\n  text = text.replace(/[\\t\\n\\r]/g, \"\")\n  return text;\n}\nvar payload = msg.payload;\nmsg.payload = stripPunctuation(payload);\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 120,
+    "y": 180,
+    "wires": [
+      [
+        "ec7a946c.37f54"
+      ]
+    ]
+  },
+  {
+    "id": "ec7a946c.37f54",
+    "type": "bert-tokenizer",
+    "z": "a0b9e339.c8cf7",
+    "name": "",
+    "url": "${vocabUrl}",
+    "x": 140,
+    "y": 280,
+    "wires": [
+      [
+        "6e0a6abc.373514"
+      ]
+    ]
+  },
+  {
+    "id": "24144af7.b8ae76",
+    "type": "tf-model",
+    "z": "a0b9e339.c8cf7",
+    "modelURL": "${modelUrl}",
+    "outputNode": "loss/Softmax",
+    "name": "BERT Sentiment Model",
+    "x": 170,
+    "y": 460,
+    "wires": [
+      [
+        "aceae84f.62de2"
+      ]
+    ]
+  },
+  {
+    "id": "6e0a6abc.373514",
+    "type": "tf-function",
+    "z": "a0b9e339.c8cf7",
+    "name": "To named tensor map",
+    "func": "msg.payload =\n{\n    input_ids_1 : tf.tensor(msg.payload.inputIds.slice(0,128), [1,128], \"int32\"),\n    segment_ids_1 : tf.tensor(msg.payload.segmentIds.slice(0,128), [1,128], \"int32\"),\n    input_mask_1 : tf.tensor(msg.payload.inputMask.slice(0,128), [1,128],\"int32\")\n}\nreturn msg",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 140,
+    "y": 380,
+    "wires": [
+      [
+        "24144af7.b8ae76"
+      ]
+    ]
+  },
+  {
+    "id": "aceae84f.62de2",
+    "type": "tf-function",
+    "z": "a0b9e339.c8cf7",
+    "name": "Post Processing",
+    "func": "const res = tf.tidy( () => {\n    return msg.payload.squeeze([0]).arraySync()\n    \n})\nreturn {payload: {positive: res[0],\n                  negative: res[1]}\n        }\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 400,
+    "y": 260,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "eb9d408b.e1e808",
+    "type": "subflow:a0b9e339.c8cf7",
+    "z": "3b8fa5ec.1fd73a",
+    "name": "",
+    "env": [
+      {
+        "name": "modelUrl",
+        "value": "https://s3.us-south.cloud-object-storage.appdomain.cloud/max-assets-prod/max-text-sentiment-classifier/tfjs/0.1.0/model.json",
+        "type": "str"
+      }
+    ],
+    "x": 170,
+    "y": 220,
+    "wires": [
+      [
+        "2fe60b3a.bacb84"
+      ],
+      [
+        "f2965ef3.911ad8",
+        "5a473c82.65a0a4"
+      ]
+    ]
+  }
+]
