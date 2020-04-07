@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-tf-model",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "a custom Node-RED node to retrieve/execute a Tensorflow model",
   "main": "dist/index.js",
   "scripts": {

@@ -1,6 +1,8 @@
 import { homedir } from 'os';
 import { join, dirname } from 'path';
-import { mkdirSync, existsSync, writeFile, writeFileSync } from 'fs';
+import {
+    mkdirSync, existsSync, writeFile, writeFileSync,
+    readdirSync, unlinkSync, rmdirSync } from 'fs';
 import * as tf from '@tensorflow/tfjs-node';
 import fetch from 'node-fetch';
 import { parse as parseURL } from 'url';
@@ -193,7 +195,23 @@ function fetchNewModelFiles(url: string) {
     .then(() => modelFile);
 }
 
-function downloadOrUpdateModelFiles(urlStr: string): Promise<string> {
+// Clean up the cache entry and model files
+function removeCacheEntry(urlStr: string) {
+  const entry = gModelCache[urlStr];
+  if (entry !== undefined) {
+    const modelFolder = join(CACHE_DIR, entry.hash);
+    const files = readdirSync(modelFolder);
+    files.forEach((file) => {
+      unlinkSync(join(modelFolder, file));
+    });
+    rmdirSync(modelFolder);
+    delete gModelCache[urlStr];
+    updateCacheEntries(MODEL_CACHE_ENTRIES);
+  }
+}
+
+function downloadOrUpdateModelFiles(urlStr: string, cacheFirst = true)
+    : Promise<string> {
 
   // support local file://
   let url: URL;
@@ -220,6 +238,11 @@ function downloadOrUpdateModelFiles(urlStr: string): Promise<string> {
             // fetch updated model files
             return fetchNewModelFiles(urlStr);
           } else {
+            if (cacheFirst) {
+              // Unable to know if there is updated version
+              // Use the existing cache entry instead
+              return join(CACHE_DIR, cacheEntry.hash, cacheEntry.filename);
+            }
             throw new Error(`can not retrieve model: ${res.statusText}`);
           }
         })
@@ -231,6 +254,7 @@ function downloadOrUpdateModelFiles(urlStr: string): Promise<string> {
     return fetchNewModelFiles(urlStr);
   }
 }
+
 // Module for a Node-Red custom node
 export = function tfModel(RED: NodeRed) {
 
@@ -291,6 +315,7 @@ export = function tfModel(RED: NodeRed) {
             shape:'dot',
             text:`failed to load the model: ${e.message}`
           });
+          this.handleError(e);
         });
       }
     }
@@ -310,6 +335,17 @@ export = function tfModel(RED: NodeRed) {
         this.error(e.message);
         this.cleanUp(inputs);
       });
+    }
+
+    // handle error properly
+    handleError(error: Error) {
+      const msg = error.message || '';
+      if (msg.indexOf(
+          'byte length of Float32Array should be a multiple of 4') !== -1) {
+        // Clear the cache entry and re-download the model next time
+        removeCacheEntry(this.modelURL);
+        this.error('Model files are corrupted, restart this node to redownload the model again');
+      }
     }
 
     cleanUp(tensors: tf.NamedTensorMap) {
