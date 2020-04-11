@@ -39,7 +39,7 @@ or ARM32 architectures. Here are the instructions to install
   from the directory you run the `npm install` command. And switch to that
   directory.
   ```
-  cd node_module/@tensorflow/tfjs-node
+  cd node_modules/@tensorflow/tfjs-node
   ```
 - For Jetson Nano, you need to provide a file named `custom-binary.json` under
   `scripts` directory with the following contents:
