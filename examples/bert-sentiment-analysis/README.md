@@ -1,5 +1,5 @@
 ## BERT Sentiment Analysis Example Flow
-This example flow uses a BERT Sentiment model to classify comments sentiment of a Youtube video
+This example flow uses a BERT Sentiment model to classify the sentiments of comments for a Youtube video
 and charts the result.
 
 ### Install the Dependencies
@@ -27,12 +27,12 @@ Example object:
 `{"video_id":"9bZkp7q19f0", "max_comments":"100"}`
 
 The comments are pulled down by the `Read Comments` function node and
-then fed into the `Sentiment Analysis` subflow which basically, sanitize
-comments, tokenize, and classify comment sentiment.
+then fed into the `Sentiment Analysis` subflow which basically sanitizes
+the comments, tokenizes them, and classifies sentiments.
 
-The result is charted by the `chart` subflow and graph can be accessed
-from the dashboard tab in the sidebar.
+The result is charted by the `chart` subflow and the graph can be accessed
+from the dashboard tab in the sidebar (or just `localhost:1880/ui/`).
 
-The comments and classification score can be seem from the debug
-tab in the sidebar as well.
+The comments and classification score can be seen from the debug
+tab in the sidebar, as well.
 

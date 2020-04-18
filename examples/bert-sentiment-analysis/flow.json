@@ -285,7 +285,7 @@
     "id": "ac34574f.b32b08",
     "type": "tf-model",
     "z": "3b8fa5ec.1fd73a",
-    "modelURL": "https://s3.us-south.cloud-object-storage.appdomain.cloud/max-assets-prod/max-text-sentiment-classifier/tfjs/0.1.0/model.json",
+    "modelURL": "https://max-cdn.cdn.appdomain.cloud/max-text-sentiment-classifier/tfjs/0.1.0/model.json",
     "outputNode": "loss/Softmax",
     "name": "BERT Sentiment Model",
     "x": 150,
