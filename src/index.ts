@@ -73,7 +73,7 @@ type NodeRedNodes = {
  * Represent Node-Red's message that passes to a node
  */
 type NodeRedReceivedMessage = {
-  payload: tf.NamedTensorMap;
+  payload: tf.NamedTensorMap | tf.Tensor | tf.Tensor[];
 };
 
 type NodeRedSendMessage = {
@@ -87,6 +87,7 @@ type StatusOption = {
 };
 
 type ModelJSON = {
+  format?: string;
   weightsManifest: [ { paths: string[]}];
 };
 
@@ -150,25 +151,26 @@ function fetchNewModelFiles(url: string) {
   const modelFolder = join(CACHE_DIR, hash);
   return fetch(url)
     .then((res) => {
-      // all model file will be stored as model.json for now
-      // TODO: need to support saved model as well
-      filename = 'model.json';
-      gModelCache[url] = {
-        hash,
-        lastModified: res.headers.get('last-modified'),
-        filename
+      return {
+          lastModified: res.headers.get('last-modified'),
+          data: res.buffer()
       };
-      return res.buffer();
     })
     // store the model.json and retrieve shared file list
     .then((body) => {
       return new Promise((resolve, reject) => {
         mkdirSync(modelFolder, { recursive: true });
+        filename = 'model.json';
         modelFile = join(modelFolder, filename);
-        writeFile(modelFile, body, (err) => {
+        writeFile(modelFile, body.data, (err) => {
           if (err) {
             reject(err);
           } else {
+            gModelCache[url] = {
+              hash,
+              lastModified: body.lastModified,
+              filename
+            };
             updateCacheEntries(MODEL_CACHE_ENTRIES);
             resolve(require(modelFile));
           }
@@ -271,7 +273,7 @@ export = function tfModel(RED: NodeRed) {
     name: string;
     wires: NodeRedWires;
     modelURL: string;
-    model: tf.GraphModel;
+    model: tf.GraphModel | tf.LayersModel;
     outputNode: string;
 
     constructor(config: NodeRedProperties) {
@@ -294,11 +296,18 @@ export = function tfModel(RED: NodeRed) {
       if (this.modelURL.trim().length > 0) {
         downloadOrUpdateModelFiles(this.modelURL)
         .then((modelPath) => {
-            this.status({fill:'red' ,shape:'ring', text:'loading model...'});
-            this.log(`loading model from: ${this.modelURL}`);
-            return tf.loadGraphModel(tf.io.fileSystem(modelPath));
+          this.status({fill:'red' ,shape:'ring', text:'loading model...'});
+          this.log(`loading model from: ${this.modelURL}`);
+          const modelJson = require(modelPath);
+          let rev: Promise<tf.LayersModel|tf.GraphModel>;
+          if (modelJson.format === 'layers') {
+            rev= tf.loadLayersModel(tf.io.fileSystem(modelPath));
+          } else {
+            rev = tf.loadGraphModel(tf.io.fileSystem(modelPath));
+          }
+          return rev;
         })
-        .then((model: tf.GraphModel) => {
+        .then((model: tf.GraphModel | tf.LayersModel) => {
           this.model = model;
           this.status({
             fill:'green',
@@ -306,7 +315,11 @@ export = function tfModel(RED: NodeRed) {
             text:'model is ready'
           });
           this.log(`model loaded`);
-          this.log(`input(s) for the model: ${JSON.stringify(this.model.inputNodes)}`);
+          if (this.model instanceof tf.GraphModel) {
+            this.log(`input(s) for the model: ${JSON.stringify(this.model.inputNodes)}`);
+          } else {
+            this.log(`input(s) for the model: ${JSON.stringify(this.model.inputNames)}`);
+          }
         })
         .catch((e: Error) => {
           this.error(e.message);
@@ -321,13 +334,19 @@ export = function tfModel(RED: NodeRed) {
     }
 
     // handle a single request
-    handleRequest(inputs: tf.NamedTensorMap) {
+    handleRequest(inputs: tf.NamedTensorMap | tf.Tensor | tf.Tensor[]) {
       if (!this.model) {
         this.error(`model is not ready`);
         return;
       }
 
-      this.model.executeAsync(inputs, this.outputNode).then((result) => {
+      let result: Promise<tf.Tensor | tf.Tensor[]>;
+      if (this.model instanceof tf.GraphModel) {
+        result = this.model.executeAsync(inputs, this.outputNode);
+      } else {
+        result = Promise.resolve(this.model.predict(inputs as tf.Tensor));
+      }
+      result.then((result) => {
         this.send({payload: result});
         this.cleanUp(inputs);
       })
@@ -348,11 +367,9 @@ export = function tfModel(RED: NodeRed) {
       }
     }
 
-    cleanUp(tensors: tf.NamedTensorMap) {
+    cleanUp(tensors: tf.NamedTensorMap | tf.Tensor | tf.Tensor[]) {
         // Clean up the NamedTensorMap here
-        for(const one in tensors) {
-          tensors[one].dispose();
-        }
+        tf.dispose(tensors);
     }
 
     handleClose(done: () => void) {
