@@ -5,7 +5,7 @@ import {
     readdirSync, unlinkSync, rmdirSync } from 'fs';
 import * as tf from '@tensorflow/tfjs-node';
 import fetch from 'node-fetch';
-import { parse as parseURL } from 'url';
+import { parse as parseURL, fileURLToPath } from 'url';
 
 /**
  * Represent Node-Red's runtime
@@ -145,32 +145,26 @@ function fetchAndStore(url: string, filePath: string): Promise<string> {
  * @param modelFolder store model files in this directory
  */
 function fetchNewModelFiles(url: string) {
-  let filename: string;
+  const filename = 'model.json';
   let modelFile: string;
   const hash = hashCode(url);
   const modelFolder = join(CACHE_DIR, hash);
+  const newCache: CacheEntry = { hash, filename, lastModified: '' };
   return fetch(url)
     .then((res) => {
-      return {
-          lastModified: res.headers.get('last-modified'),
-          data: res.buffer()
-      };
+      newCache.lastModified = res.headers.get('last-modified');
+      return res.buffer();
     })
     // store the model.json and retrieve shared file list
     .then((body) => {
       return new Promise((resolve, reject) => {
         mkdirSync(modelFolder, { recursive: true });
-        filename = 'model.json';
         modelFile = join(modelFolder, filename);
-        writeFile(modelFile, body.data, (err) => {
+        writeFile(modelFile, body, (err) => {
           if (err) {
             reject(err);
           } else {
-            gModelCache[url] = {
-              hash,
-              lastModified: body.lastModified,
-              filename
-            };
+            gModelCache[url] = newCache;
             updateCacheEntries(MODEL_CACHE_ENTRIES);
             resolve(require(modelFile));
           }
@@ -224,7 +218,7 @@ function downloadOrUpdateModelFiles(urlStr: string, cacheFirst = true)
   }
 
   if (url.protocol === 'file:') {
-    return Promise.resolve(url.pathname);
+    return Promise.resolve(fileURLToPath(urlStr));
   }
 
   const cacheEntry = gModelCache[urlStr];
