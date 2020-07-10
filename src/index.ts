@@ -280,7 +280,7 @@ export = function tfModel(RED: NodeRed) {
 
       RED.nodes.createNode(this, config);
       this.on('input', (msg: NodeRedReceivedMessage) => {
-        this.handleRequest(msg.payload);
+        this.handleRequest(msg.payload, msg);
       });
 
       this.on('close', (done: () => void) => {
@@ -328,7 +328,8 @@ export = function tfModel(RED: NodeRed) {
     }
 
     // handle a single request
-    handleRequest(inputs: tf.NamedTensorMap | tf.Tensor | tf.Tensor[]) {
+    handleRequest(inputs: tf.NamedTensorMap | tf.Tensor | tf.Tensor[],
+        origMsg: NodeRedReceivedMessage) {
       if (!this.model) {
         this.error(`model is not ready`);
         return;
@@ -341,7 +342,9 @@ export = function tfModel(RED: NodeRed) {
         result = Promise.resolve(this.model.predict(inputs as tf.Tensor));
       }
       result.then((result) => {
-        this.send({payload: result});
+        const msg = origMsg as NodeRedSendMessage;
+        msg.payload = result;
+        this.send(msg);
         this.cleanUp(inputs);
       })
       .catch((e: Error) => {
