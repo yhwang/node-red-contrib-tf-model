@@ -294,8 +294,9 @@ export = function tfModel(RED: NodeRed) {
           this.log(`loading model from: ${this.modelURL}`);
           const modelJson = require(modelPath);
           let rev: Promise<tf.LayersModel|tf.GraphModel>;
-          if (modelJson.format === 'layers') {
-            rev= tf.loadLayersModel(tf.io.fileSystem(modelPath));
+          if (modelJson.format && typeof modelJson.format === 'string' &&
+              modelJson.format.startsWith('layers')) {
+            rev = tf.loadLayersModel(tf.io.fileSystem(modelPath));
           } else {
             rev = tf.loadGraphModel(tf.io.fileSystem(modelPath));
           }
