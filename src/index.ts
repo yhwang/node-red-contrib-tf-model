@@ -252,7 +252,7 @@ function downloadOrUpdateModelFiles(urlStr: string, cacheFirst = true)
 }
 
 // Module for a Node-Red custom node
-export = function tfModel(RED: NodeRed) {
+export = function init(RED: NodeRed) {
 
   class TFModel {
     // tslint:disable-next-line:no-any
