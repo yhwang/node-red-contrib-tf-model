@@ -112,7 +112,7 @@
         "id": "dd280bb2.d6681",
         "type": "post-object-detection",
         "z": "e6ed8a49.34ead",
-        "classesURL": "https://s3.sjc.us.cloud-object-storage.appdomain.cloud/tfjs-cos/cocossd/classes.json",
+        "classesURL": "https://raw.githubusercontent.com/yhwang/node-red-contrib-tf-model/master/examples/object-detection/classes.json",
         "iou": "0.5",
         "minScore": "0.5",
         "name": "post-processing",
@@ -193,7 +193,7 @@
             "parameters": []
         },
         "x": 430,
-        "y": 120,
+        "y": 140,
         "wires": [
             [
                 "b7ab82ff.b1a338",
