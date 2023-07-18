@@ -1,1 +1,204 @@
-[{"id":"e6ed8a49.34ead","type":"tab","label":"Example Flow","disabled":false,"info":""},{"id":"17135f9f.de2a4","type":"tls-config","z":"","name":"","cert":"","key":"","ca":"","certname":"","keyname":"","caname":"","servername":"","verifyservercert":false},{"id":"30a983c6.f15eac","type":"camera","z":"e6ed8a49.34ead","name":"Camera","x":90,"y":120,"wires":[["b7ab82ff.b1a338","990f49cc.99ebf8"]]},{"id":"be443e0d.18f9d","type":"jimp-image","z":"e6ed8a49.34ead","name":"load the image","data":"payload","dataType":"msg","ret":"buf","parameter1":"","parameter1Type":"msg","parameter2":"","parameter2Type":"msg","parameter3":"","parameter3Type":"msg","parameter4":"","parameter4Type":"msg","parameter5":"","parameter5Type":"msg","parameter6":"","parameter6Type":"msg","parameter7":"","parameter7Type":"msg","parameter8":"","parameter8Type":"msg","parameterCount":0,"jimpFunction":"none","selectedJimpFunction":{"name":"none","fn":"none","description":"Just loads the image.","parameters":[]},"x":340,"y":60,"wires":[["b7ab82ff.b1a338","990f49cc.99ebf8"]]},{"id":"abda13e6.303bb8","type":"inject","z":"e6ed8a49.34ead","name":"Inject","topic":"","payload":"https://raw.githubusercontent.com/tensorflow/tfjs-models/master/coco-ssd/demo/image1.jpg","payloadType":"str","repeat":"","crontab":"","once":false,"onceDelay":0.1,"x":90,"y":80,"wires":[["be443e0d.18f9d"]]},{"id":"b7ab82ff.b1a338","type":"image viewer","z":"e6ed8a49.34ead","name":"Original Image viewer","width":"320","data":"payload","dataType":"msg","x":680,"y":40,"wires":[[]]},{"id":"e0a513ae.0c3ff8","type":"image viewer","z":"e6ed8a49.34ead","name":"With bounding boxes","width":"320","data":"payload","dataType":"msg","x":680,"y":340,"wires":[[]]},{"id":"26d5c369.1e4fc4","type":"fileinject","z":"e6ed8a49.34ead","name":"select an image file","x":130,"y":40,"wires":[["be443e0d.18f9d"]]},{"id":"41a6b3d.e80f0cc","type":"bbox-image","z":"e6ed8a49.34ead","strokeWidth":"4","fontSize":"16","objectsProp":"payload","objectsPropType":"msg","imageProp":"image","imagePropType":"msg","name":"bounding-box","x":340,"y":360,"wires":[["e0a513ae.0c3ff8"]]},{"id":"dd280bb2.d6681","type":"post-object-detection","z":"e6ed8a49.34ead","classesURL":"https://s3.sjc.us.cloud-object-storage.appdomain.cloud/tfjs-cos/cocossd/classes.json","iou":"0.5","minScore":"0.5","name":"post-processing","x":120,"y":360,"wires":[["41a6b3d.e80f0cc"]]},{"id":"990f49cc.99ebf8","type":"tf-function","z":"e6ed8a49.34ead","name":"pre-processing","func":"const image = tf.tidy(() => {\n  return tf.node.decodeImage(msg.payload, 3).expandDims(0);\n});\n\nmsg.image = msg.payload;\nmsg.payload = { image_tensor: image }\nreturn msg;","outputs":1,"noerr":0,"x":120,"y":240,"wires":[["995f6de8.b48258"]]},{"id":"995f6de8.b48258","type":"tf-model","z":"e6ed8a49.34ead","modelURL":"https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2/model.json","outputNode":"","name":"COCO SSD lite","x":120,"y":300,"wires":[["dd280bb2.d6681"]]}]
+[
+    {
+        "id": "e6ed8a49.34ead",
+        "type": "tab",
+        "label": "Example Flow",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "30a983c6.f15eac",
+        "type": "camera",
+        "z": "e6ed8a49.34ead",
+        "name": "Camera",
+        "x": 90,
+        "y": 120,
+        "wires": [
+            [
+                "b7ab82ff.b1a338",
+                "990f49cc.99ebf8",
+                "7e4a322ce12923b0"
+            ]
+        ]
+    },
+    {
+        "id": "abda13e6.303bb8",
+        "type": "inject",
+        "z": "e6ed8a49.34ead",
+        "name": "Inject",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "https://raw.githubusercontent.com/tensorflow/tfjs-models/master/coco-ssd/demo/image1.jpg",
+        "payloadType": "str",
+        "x": 90,
+        "y": 80,
+        "wires": [
+            [
+                "7e4a322ce12923b0"
+            ]
+        ]
+    },
+    {
+        "id": "b7ab82ff.b1a338",
+        "type": "image viewer",
+        "z": "e6ed8a49.34ead",
+        "name": "Original Image viewer",
+        "width": "320",
+        "data": "payload",
+        "dataType": "msg",
+        "active": true,
+        "x": 780,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e0a513ae.0c3ff8",
+        "type": "image viewer",
+        "z": "e6ed8a49.34ead",
+        "name": "With bounding boxes",
+        "width": "320",
+        "data": "payload",
+        "dataType": "msg",
+        "active": true,
+        "x": 1040,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "26d5c369.1e4fc4",
+        "type": "fileinject",
+        "z": "e6ed8a49.34ead",
+        "name": "select an image file",
+        "x": 130,
+        "y": 40,
+        "wires": [
+            [
+                "7e4a322ce12923b0"
+            ]
+        ]
+    },
+    {
+        "id": "41a6b3d.e80f0cc",
+        "type": "bbox-image",
+        "z": "e6ed8a49.34ead",
+        "strokeWidth": "4",
+        "fontSize": "16",
+        "objectsProp": "payload",
+        "objectsPropType": "msg",
+        "imageProp": "image",
+        "imagePropType": "msg",
+        "name": "bounding-box",
+        "x": 580,
+        "y": 540,
+        "wires": [
+            [
+                "e0a513ae.0c3ff8"
+            ]
+        ]
+    },
+    {
+        "id": "dd280bb2.d6681",
+        "type": "post-object-detection",
+        "z": "e6ed8a49.34ead",
+        "classesURL": "https://s3.sjc.us.cloud-object-storage.appdomain.cloud/tfjs-cos/cocossd/classes.json",
+        "iou": "0.5",
+        "minScore": "0.5",
+        "name": "post-processing",
+        "x": 220,
+        "y": 500,
+        "wires": [
+            [
+                "41a6b3d.e80f0cc"
+            ]
+        ]
+    },
+    {
+        "id": "990f49cc.99ebf8",
+        "type": "tf-function",
+        "z": "e6ed8a49.34ead",
+        "name": "pre-processing",
+        "func": "const image = tf.tidy(() => {\n  return tf.node.decodeImage(msg.payload, 3).expandDims(0);\n});\n\nmsg.image = msg.payload;\nmsg.payload = { image_tensor: image }\nconsole.log(msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 2,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 120,
+        "y": 240,
+        "wires": [
+            [
+                "995f6de8.b48258"
+            ]
+        ]
+    },
+    {
+        "id": "995f6de8.b48258",
+        "type": "tf-model",
+        "z": "e6ed8a49.34ead",
+        "modelURL": "https://storage.googleapis.com/tfjs-models/savedmodel/ssdlite_mobilenet_v2/model.json",
+        "outputNode": "",
+        "name": "COCO SSD lite",
+        "x": 120,
+        "y": 300,
+        "wires": [
+            [
+                "dd280bb2.d6681"
+            ]
+        ]
+    },
+    {
+        "id": "7e4a322ce12923b0",
+        "type": "jimp-image",
+        "z": "e6ed8a49.34ead",
+        "name": "load image",
+        "data": "payload",
+        "dataType": "msg",
+        "ret": "buf",
+        "parameter1": "",
+        "parameter1Type": "msg",
+        "parameter2": "",
+        "parameter2Type": "msg",
+        "parameter3": "",
+        "parameter3Type": "msg",
+        "parameter4": "",
+        "parameter4Type": "msg",
+        "parameter5": "",
+        "parameter5Type": "msg",
+        "parameter6": "",
+        "parameter6Type": "msg",
+        "parameter7": "",
+        "parameter7Type": "msg",
+        "parameter8": "",
+        "parameter8Type": "msg",
+        "sendProperty": "payload",
+        "sendPropertyType": "msg",
+        "parameterCount": 0,
+        "jimpFunction": "none",
+        "selectedJimpFunction": {
+            "name": "none",
+            "fn": "none",
+            "description": "Just loads the image.",
+            "parameters": []
+        },
+        "x": 430,
+        "y": 120,
+        "wires": [
+            [
+                "b7ab82ff.b1a338",
+                "990f49cc.99ebf8"
+            ]
+        ]
+    }
+]

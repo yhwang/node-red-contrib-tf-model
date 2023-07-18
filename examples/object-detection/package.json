@@ -9,12 +9,12 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@tensorflow/tfjs-node": "1.4.0",
-    "node-red": "^1.0.3",
+    "@tensorflow/tfjs-node": "^4.8.0",
+    "node-red": "^3.0.2",
     "node-red-contrib-browser-utils": "0.0.9",
     "node-red-contrib-image-tools": "^0.2.5",
-    "node-red-contrib-post-object-detection": "^0.1.6",
-    "node-red-contrib-tf-function": "^0.1.0",
-    "node-red-contrib-tf-model": "^0.1.10"
+    "node-red-contrib-post-object-detection": "^0.1.7",
+    "node-red-contrib-tf-function": "^0.1.1",
+    "node-red-contrib-tf-model": "^0.1.12"
   }
 }

@@ -30,39 +30,11 @@ note that the latest `@tensorflow/tfjs-node` does not yet support the ARM64 or A
 Here are the instructions for installation:
 
 `@tensorflow/tfjs-node` on Jetson Nano and Raspberry Pi 4:
-- The version must to be equal or greater then 1.5.1 (up to 1.7.3)
 - Run the following command to install `tfjs-node`:
   ```
-  npm install @tensorflow/tfjs-node@1.x.y
+  npm install @tensorflow/tfjs-node@4.8.0
+  npm rebuild @tensorflow/tfjs-node --build-from-source
   ```
-  Please append the version you need. i.e @tensorflow/tfjs-node@1.5.1.
-  You will see an error message while downloading/installing/compiling the shared libraries
-  and node binding, but the JavaScript libraries are installed.
-- Find the `tfjs-node` package directory on your local system. Usually it would be under `node_modules/@tensorflow/tfjs-node`
-  from the directory you run the `npm install` command. Switch to this directory.
-  directory.
-  ```
-  cd node_modules/@tensorflow/tfjs-node
-  ```
-- For the Jetson Nano, you need to provide a file named `custom-binary.json` under the
-  `scripts` directory with the following contents:
-  ```
-  {
-    "tf-lib": "https://s3.us.cloud-object-storage.appdomain.cloud/tfjs-cos/libtensorflow-gpu-linux-arm64-1.15.0.tar.gz"
-  }
-  ```
-- For the Raspberry Pi 4, you need to provide a file named `custom-binary.json` under the
-  `scripts` directory with the following contents:
-  ```
-  {
-    "tf-lib": "https://s3.us.cloud-object-storage.appdomain.cloud/tfjs-cos/libtensorflow-cpu-linux-arm-1.15.0.tar.gz"
-  }
-  ```
-- Run the following command under the `node_module/@tensorflow/tfjs-node` directory:
-  ```
-  npm install
-  ```
-  This will download the pre-compiled TensorFlow shared library binary and build the node binding.
 
 ### Install this module:
 Once you have installed the peer dependency, you can install this module:
